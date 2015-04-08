@@ -10,6 +10,7 @@
     </engines>
 
     <name>File Manager</name>
+    <description>File manager phonegap plugin. Serves as file chooser (Android) / file opener (Android, iOS)</description>
 
     <js-module src="www/fileManager.js" name="FileManager">
         <clobbers target="FileManager"/>
