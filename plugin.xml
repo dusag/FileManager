@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<plugin
+        xmlns="http://www.phonegap.com/ns/plugins/1.0"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        id="cz.raynet.raynetcrm.FileManager"
+        version="0.0.0">
+
+    <engines>
+        <engine name="cordova" version=">=2.8.0"/>
+    </engines>
+
+    <name>File Manager</name>
+
+    <js-module src="www/fileManager.js" name="FileManager">
+        <clobbers target="FileManager"/>
+    </js-module>
+
+    <platform name="ios">
+        <config-file target="config.xml" parent="/*">
+            <feature name="FileManager">
+                <param name="ios-package" value="FileManager" />
+            </feature>
+        </config-file>
+      
+        <framework src="QuickLook.framework" />
+        <framework src="Foundation.framework" />	
+
+        <header-file src="src/ios/FileManager.h"/>
+        <source-file src="src/ios/FileManager.m" />
+    </platform>
+
+    <platform name="android">
+
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="FileManager">
+                <param name="android-package" value="cz.raynet.raynetcrm.FileManager"/>
+            </feature>
+        </config-file>
+
+        <source-file src="src/android/FileManager.java" target-dir="src/cz/raynet/raynetcrm"/>
+
+    </platform>
+
+</plugin>
