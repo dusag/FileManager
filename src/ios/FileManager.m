@@ -15,7 +15,6 @@
 - (void)open:(CDVInvokedUrlCommand *)command {
 
   // Check command.arguments here.
-  [self.commandDelegate runInBackground:^{
     CDVPluginResult* commandResult = nil;
     NSString *path = [[command.arguments objectAtIndex:0] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 
@@ -52,7 +51,6 @@
 
     [self.commandDelegate sendPluginResult:commandResult
                                 callbackId:command.callbackId];
-  }];
 }
 
 #pragma - QLPreviewControllerDataSource Protocol
