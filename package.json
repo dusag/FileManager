@@ -1,0 +1,33 @@
+{
+  "name": "cz.raynet.raynetcrm.FileManager",
+  "version": "0.0.1",
+  "description": "File manager phonegap plugin. Serves as file chooser (Android) / file opener (Android, iOS)",
+  "cordova": {
+    "id": "cz.raynet.raynetcrm.FileManager",
+    "platforms": [
+      "ios",
+      "android"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dusag/FileManager.git"
+  },
+  "keywords": [
+    "ecosystem:cordova",
+    "cordova-ios",
+    "cordova-android"
+  ],
+  "engines": [
+    {
+      "name": "cordova",
+      "version": ">=2.8.0"
+    }
+  ],
+  "author": "Dusan Galik",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dusag/FileManager/issues"
+  },
+  "homepage": "https://github.com/dusag/FileManager#readme"
+}
