@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.webkit.MimeTypeMap;
@@ -56,6 +57,9 @@ public class FileManager extends CordovaPlugin {
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private boolean openFile(final String fileName, final String contentType, final CallbackContext callbackContext) throws JSONException {
+
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
 
         String fileNameTrim = fileName;
         if (fileName.startsWith("file:///")) {
