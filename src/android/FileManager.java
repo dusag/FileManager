@@ -1,11 +1,11 @@
 package cz.raynet.raynetcrm;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -15,6 +15,7 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
+
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaArgs;
 import org.apache.cordova.CordovaPlugin;
@@ -22,8 +23,10 @@ import org.apache.cordova.PluginResult;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.*;
-import java.net.URLEncoder;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 
 public class FileManager extends CordovaPlugin {
@@ -32,6 +35,8 @@ public class FileManager extends CordovaPlugin {
     private static final String ACTION_CHOOSE = "choose";
     private static final String ACTION_OPEN = "open";
     private static final int PICK_FILE_REQUEST = 1;
+    private static final String READ_STORAGE_PERMISSION = "android.permission.READ_EXTERNAL_STORAGE";
+    private static final int MY_PERMISSIONS_REQUEST_READ_STORAGE = 8;
     CallbackContext callback;
 
     @Override
@@ -55,7 +60,6 @@ public class FileManager extends CordovaPlugin {
         return false;
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private boolean openFile(final String fileName, final String contentType, final CallbackContext callbackContext) throws JSONException {
 
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
@@ -98,11 +102,16 @@ public class FileManager extends CordovaPlugin {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public void chooseFile(final CallbackContext callbackContext) {
+    private void chooseFile(final CallbackContext callbackContext) {
+        callback = callbackContext;
+        if (!cordova.hasPermission(READ_STORAGE_PERMISSION)) {
+            cordova.requestPermission(this, MY_PERMISSIONS_REQUEST_READ_STORAGE, READ_STORAGE_PERMISSION);
+        } else {
+            this._chooseFile(callbackContext);
+        }
+    }
 
-        // type and title should be configurable
-
+    private void _chooseFile(final CallbackContext callbackContext) {
         final Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("*/*");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -113,8 +122,26 @@ public class FileManager extends CordovaPlugin {
 
         final PluginResult pluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
         pluginResult.setKeepCallback(true);
-        callback = callbackContext;
         callbackContext.sendPluginResult(pluginResult);
+    }
+
+    @Override
+    public void onRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults) throws JSONException {
+        for(int r : grantResults) {
+            if(r == PackageManager.PERMISSION_DENIED) {
+                callback.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, "Permission " + READ_STORAGE_PERMISSION + "denied"));
+                return;
+            }
+        }
+
+        switch(requestCode)
+        {
+            case MY_PERMISSIONS_REQUEST_READ_STORAGE:
+                this._chooseFile(callback);
+                break;
+            default:
+                break;
+        }
     }
 
     @Override
@@ -186,7 +213,7 @@ public class FileManager extends CordovaPlugin {
         return MimeTypeMap.getFileExtensionFromUrl(filePath);
     }
 
-    public String getMimeType(final String fileExtension) {
+    private String getMimeType(final String fileExtension) {
         if (fileExtension == null) {
             return null;
         }
@@ -195,7 +222,7 @@ public class FileManager extends CordovaPlugin {
         return mime.getMimeTypeFromExtension(fileExtension);
     }
 
-    public String getFilePath(final Uri uri, final Context context) {
+    private String getFilePath(final Uri uri, final Context context) {
 
         //check here to KITKAT or new version
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
