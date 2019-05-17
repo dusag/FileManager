@@ -1,6 +1,6 @@
 {
   "name": "cz.raynet.raynetcrm.FileManager",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "File manager phonegap plugin. Serves as file chooser (Android) / file opener (Android, iOS)",
   "cordova": {
     "id": "cz.raynet.raynetcrm.FileManager",
