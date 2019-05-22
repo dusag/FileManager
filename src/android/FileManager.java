@@ -53,7 +53,19 @@ public class FileManager extends CordovaPlugin {
         return false;
     }
 
-    private boolean openFile(final String fileName, final String contentType, final CallbackContext callbackContext) throws JSONException {
+    private void openFile(final String fileName, final String contentType, final CallbackContext callbackContext) {
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    FileManager.this._openFile(fileName, contentType, callbackContext);
+                } catch (Exception e) {
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
+    private void _openFile(final String fileName, final String contentType, final CallbackContext callbackContext) throws JSONException {
 
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
@@ -76,17 +88,12 @@ public class FileManager extends CordovaPlugin {
 
                 cordova.getActivity().startActivity(intent);
                 callbackContext.success();
-
-                return true;
-
             } catch (android.content.ActivityNotFoundException e) {
 
                 JSONObject errorObj = new JSONObject();
                 errorObj.put("status", PluginResult.Status.INVALID_ACTION.ordinal());
                 errorObj.put("message", "Activity not found: " + e.getMessage());
                 callbackContext.error(errorObj);
-
-                return false;
             }
 
         } else {
@@ -96,12 +103,20 @@ public class FileManager extends CordovaPlugin {
     }
 
     private void chooseFile(final CallbackContext callbackContext) {
-        callback = callbackContext;
-        if (!cordova.hasPermission(READ_STORAGE_PERMISSION)) {
-            cordova.requestPermission(this, MY_PERMISSIONS_REQUEST_READ_STORAGE, READ_STORAGE_PERMISSION);
-        } else {
-            this._chooseFile(callbackContext);
-        }
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    callback = callbackContext;
+                    if (!cordova.hasPermission(READ_STORAGE_PERMISSION)) {
+                        cordova.requestPermission(FileManager.this, MY_PERMISSIONS_REQUEST_READ_STORAGE, READ_STORAGE_PERMISSION);
+                    } else {
+                        FileManager.this._chooseFile(callbackContext);
+                    }
+                } catch (Exception e) {
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
     }
 
     private void _chooseFile(final CallbackContext callbackContext) {
