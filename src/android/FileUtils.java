@@ -248,7 +248,7 @@ public class FileUtils {
      *
      * @param context       The context.
      * @param uri           The Uri to query.
-     * @return The value of the _display_name column, which is typically a file path.
+     * @return The value of the _display_name column, which is typically a file name.
      */
     private static String getFilePath(Context context, Uri uri) {
         return getContentColumnValue(context, uri, OpenableColumns.DISPLAY_NAME, null, null);
@@ -338,6 +338,15 @@ public class FileUtils {
                 final String id = DocumentsContract.getDocumentId(uri);
                 if (id != null && id.startsWith("raw:")) {
                     return id.substring(4);
+                }
+
+                final String filePath = getFilePath(context, uri);
+                if (filePath != null) {
+                    final String dirPath = Environment.getExternalStorageDirectory().toString() + "/Download/" + filePath;
+                    final File dir = new File(dirPath);
+                    if (dir.exists() && dir.isFile()) {
+                        return dirPath;
+                    }
                 }
 
                 final String[] contentUriPrefixesToTry = new String[]{
