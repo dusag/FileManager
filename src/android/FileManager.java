@@ -6,13 +6,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.StrictMode;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaArgs;
 import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.CordovaResourceApi;
 import org.apache.cordova.PluginResult;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -65,40 +65,35 @@ public class FileManager extends CordovaPlugin {
         });
     }
 
-    private void _openFile(final String fileName, final String contentType, final CallbackContext callbackContext) throws JSONException {
+    private void _openFile(final String fileArg, final String contentType, final CallbackContext callbackContext) throws JSONException {
 
-        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-        StrictMode.setVmPolicy(builder.build());
-
-        String fileNameTrim = fileName;
-        if (fileName.startsWith("file:///")) {
-            fileNameTrim = fileName.substring(8);
-        } else if (fileName.startsWith("file://")) {
-            fileNameTrim = fileName.substring(7);
+        String fileName;
+        try {
+            CordovaResourceApi resourceApi = webView.getResourceApi();
+            Uri fileUri = resourceApi.remapUri(Uri.parse(fileArg));
+            fileName = fileUri.getPath();
+        } catch (Exception e) {
+            fileName = fileArg;
         }
 
-        File file = new File(fileNameTrim);
+        final File file = new File(fileName);
         if (file.exists()) {
-
             try {
-                Uri path = Uri.fromFile(file);
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setDataAndType(path, contentType);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
+                final Intent intent = FileUtils.getViewIntent(this.cordova.getActivity().getApplicationContext(), file, contentType);
                 cordova.getActivity().startActivity(intent);
+
                 callbackContext.success();
             } catch (android.content.ActivityNotFoundException e) {
-
                 JSONObject errorObj = new JSONObject();
-                errorObj.put("status", PluginResult.Status.INVALID_ACTION.ordinal());
+                errorObj.put("status", PluginResult.Status.ERROR.ordinal());
                 errorObj.put("message", "Activity not found: " + e.getMessage());
                 callbackContext.error(errorObj);
             }
-
         } else {
-            throw new JSONException("File not found");
-
+            JSONObject errorObj = new JSONObject();
+            errorObj.put("status", PluginResult.Status.ERROR.ordinal());
+            errorObj.put("message", "File not found");
+            callbackContext.error(errorObj);
         }
     }
 

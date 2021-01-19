@@ -35,14 +35,25 @@
 
     <platform name="android">
 
+        <config-file target="AndroidManifest.xml" parent="application">
+            <provider android:name="cz.raynet.raynetcrm.FileProvider" android:authorities="${applicationId}.fileManager.provider" android:exported="false" android:grantUriPermissions="true">
+                <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/manager_paths" />
+            </provider>
+        </config-file>
+
+        <preference name="ANDROID_SUPPORT_V4_VERSION" default="27.+"/>
+        <framework src="com.android.support:support-v4:$ANDROID_SUPPORT_V4_VERSION"/>
+        
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="FileManager">
                 <param name="android-package" value="cz.raynet.raynetcrm.FileManager"/>
             </feature>
         </config-file>
 
+        <source-file src="src/android/res/xml/manager_paths.xml" target-dir="res/xml" />
         <source-file src="src/android/FileUtils.java" target-dir="src/cz/raynet/raynetcrm"/>
         <source-file src="src/android/FileManager.java" target-dir="src/cz/raynet/raynetcrm"/>
+        <source-file src="src/android/FileProvider.java" target-dir="src/cz/raynet/raynetcrm" />
 
     </platform>
 
