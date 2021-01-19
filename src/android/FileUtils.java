@@ -188,7 +188,7 @@ public class FileUtils {
         }
         return type;
     }
-    
+
     /**
      * @param uri The Uri to check.
      * @return Whether the Uri authority is local.
@@ -298,7 +298,7 @@ public class FileUtils {
         String absolutePath = getLocalPath(context, uri);
         return absolutePath != null ? absolutePath : uri.toString();
     }
-    
+
     private static String getLocalPath(final Context context, final Uri uri) {
 
         if (DEBUG)
@@ -393,6 +393,18 @@ public class FileUtils {
                     contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
                 } else if ("audio".equals(type)) {
                     contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                } else {
+                    final String fileName = getFileName(context, uri);
+                    final File cacheDir = getDocumentCacheDir(context);
+                    final File file = generateFileName(fileName, cacheDir);
+
+                    String destinationPath = null;
+                    if (file != null) {
+                        destinationPath = file.getAbsolutePath();
+                        saveFileFromUri(context, uri, destinationPath);
+                    }
+
+                    return destinationPath;
                 }
 
                 final String selection = "_id=?";
