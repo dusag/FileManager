@@ -85,15 +85,12 @@ public class FileManager extends CordovaPlugin {
                 callbackContext.success();
             } catch (android.content.ActivityNotFoundException e) {
                 JSONObject errorObj = new JSONObject();
-                errorObj.put("status", PluginResult.Status.ERROR.ordinal());
+                errorObj.put("status", PluginResult.Status.INVALID_ACTION.ordinal());
                 errorObj.put("message", "Activity not found: " + e.getMessage());
                 callbackContext.error(errorObj);
             }
         } else {
-            JSONObject errorObj = new JSONObject();
-            errorObj.put("status", PluginResult.Status.ERROR.ordinal());
-            errorObj.put("message", "File not found");
-            callbackContext.error(errorObj);
+            throw new JSONException("File not found");
         }
     }
 
